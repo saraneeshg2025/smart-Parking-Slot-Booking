@@ -1,12 +1,13 @@
 package com.example.ParkSmart.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "slots")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Slot {
 
     @Id
@@ -20,7 +21,6 @@ public class Slot {
     @Column(nullable = false)
     private String status = "AVAILABLE";
 
-    @NotNull(message = "Parking lot is required.")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parking_lot_id", nullable = false)
     @JsonIgnore
