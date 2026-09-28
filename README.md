@@ -25,14 +25,13 @@ ParkSmart is a smart parking slot booking backend built with Java 17, Spring Boo
 1. Install MySQL and start the MySQL service.
 2. Create the database manually if needed:
    ```sql
-   CREATE DATABASE parksmart_db;
+  CREATE DATABASE grain_storage_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 3. Set environment variables before running the app:
    ```bash
-   set MYSQL_USERNAME=root
    set MYSQL_PASSWORD=your_mysql_password
    ```
-4. Or update the password directly in `application.properties` if needed.
+  Set `MYSQL_PASSWORD` in the same terminal session where you start the app. Do not put the password in `application.properties` or commit it.
 
 ## Run the project
 ```bash
