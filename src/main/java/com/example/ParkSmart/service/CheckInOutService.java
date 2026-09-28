@@ -109,7 +109,8 @@ public class CheckInOutService {
         }
 
         Duration duration = Duration.between(bookedEndTime, actualCheckoutTime);
-        return duration.toMinutes();
+        long wholeMinutes = duration.toMinutes();
+        return duration.minusMinutes(wholeMinutes).isZero() ? wholeMinutes : wholeMinutes + 1;
     }
 
     public double calculatePenalty(long overstayMinutes) {
