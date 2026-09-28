@@ -93,6 +93,16 @@ class ParkSmartApplicationTests {
 			.andReturn().getResponse().getContentAsString();
 		long bookingId = objectMapper.readTree(bookingJson).path("id").asLong();
 
+		mockMvc.perform(post("/api/bookings")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of(
+						"customerName", "Second Customer",
+						"vehicleNumber", "TEST456",
+						"slotId", slotId,
+						"startTime", startTime.plusMinutes(5),
+						"endTime", endTime))))
+			.andExpect(status().isConflict());
+
 		mockMvc.perform(post("/api/check-in/{bookingId}", bookingId))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value("CHECKED_IN"));
