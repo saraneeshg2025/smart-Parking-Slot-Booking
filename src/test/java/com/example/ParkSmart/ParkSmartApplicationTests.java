@@ -39,6 +39,13 @@ class ParkSmartApplicationTests {
 	}
 
 	@Test
+	void checkoutEndpointReturnsMethodNotAllowedForGet() throws Exception {
+		mockMvc.perform(get("/api/check-out/1"))
+				.andExpect(status().isMethodNotAllowed())
+				.andExpect(jsonPath("$.status").value(405));
+	}
+
+	@Test
 	void hibernateCreatesAllParkingTables() {
 		Integer tableCount = jdbcTemplate.queryForObject(
 				"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES "

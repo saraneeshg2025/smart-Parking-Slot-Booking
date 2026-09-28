@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b26">
+  <title>ParkSmart | Operations</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1c2c27;
+      --muted: #718079;
+      --line: #dce4de;
+      --paper: #f4f7f3;
+      --surface: #ffffff;
+      --forest: #214b3d;
+      --forest-dark: #17372e;
+      --lime: #d6ee91;
+      --coral: #df735f;
+      --amber: #e8b857;
+      --shadow: 0 12px 36px rgba(28, 44, 39, .07);
+      font-family: "Segoe UI Variable", "Aptos", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 244px minmax(0, 1fr); }
+    .sidebar { background: var(--forest-dark); color: #eaf1e8; padding: 26px 18px; display: flex; flex-direction: column; gap: 34px; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 9px; }
+    .brand-mark { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 11px; background: var(--lime); color: var(--forest-dark); font-weight: 900; font-size: 18px; }
+    .brand-name { font-weight: 750; font-size: 17px; letter-spacing: .2px; }
+    .brand-caption { display: block; margin-top: 2px; color: #a9bdb3; font-size: 11px; }
+    .nav-label { margin: 0 10px 8px; color: #91a79c; font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: 1.2px; }
+    .nav-link { width: 100%; min-height: 42px; border: 0; border-radius: 8px; background: transparent; color: #d0ddd5; text-align: left; padding: 0 12px; display: flex; align-items: center; gap: 11px; font-size: 13px; }
+    .nav-link.active, .nav-link:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .nav-glyph { width: 18px; color: var(--lime); text-align: center; font-size: 15px; }
+    .side-bottom { margin-top: auto; border-top: 1px solid rgba(255,255,255,.12); padding: 17px 8px 0; color: #a9bdb3; font-size: 11px; line-height: 1.6; }
+    .connection-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--lime); margin-right: 6px; }
+    .main { min-width: 0; padding: 0 34px 42px; }
+    .topbar { min-height: 78px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .crumb { color: var(--muted); font-size: 12px; }
+    .crumb strong { color: var(--ink); font-weight: 650; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .api-state { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; margin-right: 5px; }
+    .api-dot { width: 8px; height: 8px; border-radius: 50%; background: #9ba9a2; }
+    .api-dot.online { background: #53a678; box-shadow: 0 0 0 3px rgba(83,166,120,.13); }
+    .api-dot.offline { background: var(--coral); }
+    .icon-button, .button { border: 1px solid var(--line); border-radius: 8px; min-height: 38px; padding: 0 13px; background: var(--surface); color: var(--ink); font-size: 12px; font-weight: 650; }
+    .icon-button:hover, .button:hover { border-color: #91a79b; background: #f8faf7; }
+    .button.primary { background: var(--forest); border-color: var(--forest); color: #fff; }
+    .button.primary:hover { background: var(--forest-dark); }
+    .button.small { min-height: 31px; padding: 0 10px; font-size: 11px; }
+    .heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding: 28px 0 22px; }
+    h1 { margin: 0; font-size: 28px; letter-spacing: 0; font-weight: 740; }
+    .subheading { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+    .today { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-bottom: 20px; }
+    .metric { min-height: 116px; position: relative; overflow: hidden; padding: 17px 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+    .metric::after { content: ""; position: absolute; right: -18px; bottom: -37px; width: 95px; height: 95px; border: 1px solid #e5ece4; border-radius: 50%; box-shadow: 0 0 0 12px #f8faf7, 0 0 0 24px #fbfcfa; }
+    .metric-label { color: var(--muted); font-size: 11px; font-weight: 650; }
+    .metric-value { margin-top: 12px; font-size: 29px; line-height: 1; font-weight: 760; }
+    .metric-note { margin-top: 7px; color: var(--muted); font-size: 10px; }
+    .metric:nth-child(2) .metric-value { color: var(--forest); }
+    .metric:nth-child(3) .metric-value { color: #b57c21; }
+    .metric:nth-child(4) .metric-value { color: #b74e40; }
+    .work-grid { display: grid; grid-template-columns: minmax(240px, .78fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+    .panel { border: 1px solid var(--line); border-radius: 9px; background: var(--surface); box-shadow: var(--shadow); min-width: 0; }
+    .panel-head { min-height: 58px; padding: 0 17px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); }
+    .panel-title { margin: 0; font-size: 13px; font-weight: 730; }
+    .panel-meta { color: var(--muted); font-size: 10px; }
+    .lot-list { padding: 7px; }
+    .lot-row { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 11px; border: 0; border-radius: 7px; background: transparent; color: var(--ink); text-align: left; }
+    .lot-row:hover { background: #f4f7f3; }
+    .lot-row.selected { background: #eaf1e9; box-shadow: inset 3px 0 var(--forest); }
+    .lot-name { display: block; font-weight: 680; font-size: 12px; }
+    .lot-loc { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .lot-count { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #edf3e9; color: var(--forest); font-size: 11px; font-weight: 750; }
+    .main-panel { overflow: hidden; }
+    .lot-overview { padding: 17px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; border-bottom: 1px solid var(--line); background: linear-gradient(100deg, #f7faf5 0%, #fff 72%); }
+    .lot-overview h2 { margin: 0; font-size: 17px; }
+    .lot-overview p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .occupancy { margin-left: auto; min-width: 118px; }
+    .occupancy-top { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
+    .occupancy-track { height: 6px; margin-top: 8px; border-radius: 8px; background: #e5ebe4; overflow: hidden; }
+    .occupancy-fill { width: 0; height: 100%; border-radius: inherit; background: var(--forest); transition: width .35s ease; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+    .toolbar-spacer { flex: 1; }
+    .input { min-height: 34px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); font-size: 11px; }
+    .input:focus { outline: 2px solid rgba(96,140,106,.25); border-color: #71927a; }
+    .slot-grid { padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 9px; min-height: 115px; }
+    .slot { min-height: 75px; padding: 11px; border: 1px solid var(--line); border-radius: 7px; background: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+    .slot-top { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
+    .slot-name { font-size: 13px; font-weight: 760; }
+    .slot-car { color: #9aaba0; font-size: 16px; }
+    .status { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; text-transform: uppercase; letter-spacing: .35px; font-weight: 750; color: var(--muted); }
+    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status.available { color: #398259; }
+    .status.occupied { color: #b95344; }
+    .status.booked { color: #b07d22; }
+    .section-row { padding: 14px 17px 9px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); }
+    .section-row h3 { margin: 0; font-size: 12px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 9px 13px; color: var(--muted); background: #fafbf9; font-size: 9px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; white-space: nowrap; }
+    td { padding: 11px 13px; border-top: 1px solid #edf0ec; font-size: 11px; white-space: nowrap; }
+    td strong { font-weight: 680; }
+    .row-actions { display: flex; gap: 5px; }
+    .empty { padding: 26px 14px; text-align: center; color: var(--muted); font-size: 11px; }
+    .empty strong { display: block; color: var(--ink); font-size: 12px; margin-bottom: 5px; }
+    .toast { position: fixed; right: 22px; bottom: 22px; z-index: 5; max-width: min(420px, calc(100vw - 36px)); padding: 12px 16px; border-radius: 8px; background: var(--forest-dark); color: white; box-shadow: var(--shadow); font-size: 12px; opacity: 0; transform: translateY(8px); pointer-events: none; transition: .18s ease; }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+    .toast.error { background: #9e463b; }
+    dialog { width: min(440px, calc(100vw - 28px)); border: 1px solid var(--line); border-radius: 10px; padding: 0; color: var(--ink); box-shadow: 0 20px 80px rgba(15,31,25,.25); }
+    dialog::backdrop { background: rgba(20,38,31,.48); backdrop-filter: blur(2px); }
+    .dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 17px 19px; border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { margin: 0; font-size: 16px; }
+    .dialog-body { padding: 18px 19px; display: grid; gap: 13px; }
+    .field { display: grid; gap: 6px; }
+    .field label { font-size: 10px; font-weight: 700; color: #53645c; }
+    .field input, .field select { width: 100%; min-height: 38px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; background: white; color: var(--ink); }
+    .dialog-actions { display: flex; justify-content: end; gap: 8px; padding: 12px 19px 18px; }
+    .close-button { border: 0; background: transparent; color: var(--muted); font-size: 19px; line-height: 1; }
+    .loading { color: var(--muted); font-size: 11px; padding: 18px; }
+    @media (max-width: 920px) {
+      .app { grid-template-columns: 68px minmax(0, 1fr); }
+      .sidebar { padding: 22px 9px; align-items: center; }
+      .brand { padding: 0; }
+      .brand-text, .nav-label, .nav-text, .side-bottom { display: none; }
+      .nav-link { justify-content: center; padding: 0; }
+      .nav-glyph { font-size: 17px; }
+      .main { padding: 0 18px 30px; }
+      .work-grid { grid-template-columns: 1fr; }
+      .lot-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      .app { display: block; }
+      .sidebar { display: none; }
+      .main { padding: 0 12px 24px; }
+      .topbar { min-height: 60px; }
+      .api-state { font-size: 0; }
+      .heading { align-items: start; padding: 22px 0 16px; }
+      h1 { font-size: 24px; }
+      .today { display: none; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .metric { min-height: 99px; padding: 13px; }
+      .metric-value { font-size: 25px; }
+      .toolbar .toolbar-spacer { display: none; }
+      .toolbar { gap: 6px; }
+      .toolbar .input { flex: 1 1 115px; min-width: 0; }
+      .occupancy { margin-left: 0; flex-basis: 100%; }
+      .panel-head { padding: 0 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">P</div><div class="brand-text"><span class="brand-name">ParkSmart</span><span class="brand-caption">PARKING OPERATIONS</span></div></div>
+      <div><p class="nav-label">Workspace</p><button class="nav-link active" type="button"><span class="nav-glyph">▦</span><span class="nav-text">Overview</span></button><button class="nav-link" id="navBookings" type="button"><span class="nav-glyph">▤</span><span class="nav-text">Bookings</span></button><button class="nav-link" id="navLots" type="button"><span class="nav-glyph">⌖</span><span class="nav-text">Parking lots</span></button></div>
+      <div class="side-bottom"><span class="connection-dot" id="sideApiDot"></span><span id="sideApiText">Connecting to API</span><br>ParkSmart local operations</div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div class="crumb">Operations <span aria-hidden="true">/</span> <strong>Overview</strong></div><div class="top-actions"><div class="api-state"><span id="apiDot" class="api-dot"></span><span id="apiText">Checking API</span></div><button class="icon-button" id="refreshButton" type="button" title="Refresh data">↻ &nbsp;Refresh</button><button class="button primary" id="newLotButton" type="button">＋ &nbsp;New lot</button></div></header>
+      <section class="heading"><div><h1>Parking overview</h1><p class="subheading">Live view of lots, capacity, and vehicle activity.</p></div><div class="today" id="todayLabel"></div></section>
+      <section class="metrics" aria-label="Parking summary"><article class="metric"><div class="metric-label">PARKING LOTS</div><div class="metric-value" id="metricLots">—</div><div class="metric-note">Managed locations</div></article><article class="metric"><div class="metric-label">TOTAL CAPACITY</div><div class="metric-value" id="metricCapacity">—</div><div class="metric-note">Configured parking spaces</div></article><article class="metric"><div class="metric-label">AVAILABLE NOW</div><div class="metric-value" id="metricAvailable">—</div><div class="metric-note">Configured spaces, excluding active bookings</div></article><article class="metric"><div class="metric-label">ACTIVE BOOKINGS</div><div class="metric-value" id="metricBookings">—</div><div class="metric-note">Booked or checked in</div></article></section>
+      <section class="work-grid">
+        <aside class="panel" id="lotsPanel"><div class="panel-head"><h2 class="panel-title">Parking lots</h2><span class="panel-meta" id="lotCountLabel">0 locations</span></div><div class="lot-list" id="lotList"><div class="loading">Loading locations…</div></div></aside>
+        <section class="panel main-panel" aria-label="Selected lot details">
+          <div class="lot-overview"><div><h2 id="selectedLotName">Select a parking lot</h2><p id="selectedLotLocation">Choose a location to view its spaces.</p></div><div class="occupancy"><div class="occupancy-top"><span>Occupancy</span><strong id="occupancyLabel">—</strong></div><div class="occupancy-track"><div class="occupancy-fill" id="occupancyFill"></div></div></div></div>
+          <div class="toolbar"><button class="button small" id="newSlotButton" type="button">＋ Add slot</button><input class="input" id="availableStart" type="datetime-local" aria-label="Availability start"><input class="input" id="availableEnd" type="datetime-local" aria-label="Availability end"><button class="button small" id="availabilityButton" type="button">Find availability</button><span class="toolbar-spacer"></span><button class="button primary small" id="newBookingButton" type="button">＋ New booking</button></div>
+          <div class="section-row"><h3>Spaces</h3><span class="panel-meta" id="slotCountLabel">—</span></div><div class="slot-grid" id="slotGrid"><div class="empty"><strong>No location selected</strong>Select a parking lot to inspect its spaces.</div></div>
+          <div class="section-row" id="bookingsSection"><h3>Recent bookings</h3><span class="panel-meta" id="bookingCountLabel">All locations</span></div><div class="table-wrap"><table><thead><tr><th>Booking</th><th>Customer / vehicle</th><th>Space</th><th>Time window</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bookingRows"><tr><td colspan="6" class="empty">Loading bookings…</td></tr></tbody></table></div>
+        </section>
+      </section>
+    </main>
+  </div>
+  <dialog id="actionDialog"><form id="actionForm" method="dialog"><div class="dialog-head"><h2 id="dialogTitle">New parking lot</h2><button class="close-button" id="closeDialog" type="button" aria-label="Close">×</button></div><div class="dialog-body" id="dialogFields"></div><div class="dialog-actions"><button class="button" id="cancelDialog" type="button">Cancel</button><button class="button primary" id="submitDialog" type="submit">Create</button></div></form></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    const state = { lots: [], slots: [], allSlots: [], bookings: [], selectedLotId: null, availableSlotIds: null, dialogAction: null };
+    const byId = id => document.getElementById(id);
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    async function api(path, options = {}) {
+      const response = await fetch(path, { ...options, headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers } });
+      const text = await response.text(); let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+      if (!response.ok) throw new Error(data?.message || data?.error || `Request failed (${response.status})`);
+      return data;
+    }
+    function notify(message, error = false) { const toast = byId('toast'); toast.textContent = message; toast.className = `toast visible${error ? ' error' : ''}`; clearTimeout(notify.timer); notify.timer = setTimeout(() => toast.classList.remove('visible'), 3600); }
+    function setApiState(online) { byId('apiDot').className = `api-dot ${online ? 'online' : 'offline'}`; byId('apiText').textContent = online ? 'API connected' : 'API unavailable'; byId('sideApiDot').style.background = online ? 'var(--lime)' : 'var(--coral)'; byId('sideApiText').textContent = online ? 'API connected' : 'API unavailable'; }
+    function formatDate(value) { if (!value) return '—'; const date = new Date(value); return Number.isNaN(date.getTime()) ? value : date.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+    function setDefaultTimes() { const now = new Date(), later = new Date(now.getTime() + 3600000); const local = date => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16); byId('availableStart').value = local(now); byId('availableEnd').value = local(later); }
+    async function refresh() {
+      byId('lotList').innerHTML = '<div class="loading">Refreshing locations…</div>';
+      try { [state.lots, state.allSlots, state.bookings] = await Promise.all([api('/api/parking-lots'), api('/api/slots'), api('/api/bookings')]); setApiState(true); if (!state.lots.some(lot => lot.id === state.selectedLotId)) state.selectedLotId = state.lots[0]?.id ?? null; renderLots(); renderMetrics(); await loadSelectedLot(); renderBookings(); }
+      catch (error) { setApiState(false); byId('lotList').innerHTML = `<div class="empty"><strong>Could not load parking data</strong>${esc(error.message)}</div>`; byId('slotGrid').innerHTML = '<div class="empty">Check that the Spring Boot API is running.</div>'; byId('bookingRows').innerHTML = `<tr><td colspan="6" class="empty">${esc(error.message)}</td></tr>`; notify(error.message, true); }
+    }
+    function renderLots() {
+      byId('lotCountLabel').textContent = `${state.lots.length} ${state.lots.length === 1 ? 'location' : 'locations'}`;
+      if (!state.lots.length) { byId('lotList').innerHTML = '<div class="empty"><strong>No parking lots yet</strong>Create a lot to start managing spaces.</div>'; return; }
+      byId('lotList').innerHTML = state.lots.map(lot => `<button class="lot-row${lot.id === state.selectedLotId ? ' selected' : ''}" type="button" data-lot-id="${lot.id}"><span><span class="lot-name">${esc(lot.name)}</span><span class="lot-loc">${esc(lot.location)}</span></span><span class="lot-count">${Number(lot.totalSlots) || 0}</span></button>`).join('');
+      document.querySelectorAll('.lot-row').forEach(button => button.addEventListener('click', async () => { state.selectedLotId = Number(button.dataset.lotId); state.availableSlotIds = null; renderLots(); await loadSelectedLot(); renderBookings(); }));
+    }
+    function renderMetrics() { const total = state.lots.reduce((sum, lot) => sum + (Number(lot.totalSlots) || 0), 0); const activeBookings = state.bookings.filter(item => ['BOOKED','CHECKED_IN'].includes(item.status)); const now = Date.now(); const inUse = new Set(activeBookings.filter(item => Date.parse(item.startTime) <= now && Date.parse(item.endTime) > now).map(item => item.slot?.id)); const available = state.allSlots.filter(slot => slot.status === 'AVAILABLE' && !inUse.has(slot.id)).length; byId('metricLots').textContent = state.lots.length; byId('metricCapacity').textContent = total; byId('metricBookings').textContent = activeBookings.length; byId('metricAvailable').textContent = available; }
+    async function loadSelectedLot() {
+      const lot = state.lots.find(item => item.id === state.selectedLotId);
+      if (!lot) { byId('selectedLotName').textContent = 'Select a parking lot'; byId('selectedLotLocation').textContent = 'Choose a location to view its spaces.'; byId('occupancyLabel').textContent = '—'; byId('occupancyFill').style.width = '0%'; byId('slotCountLabel').textContent = '—'; byId('slotGrid').innerHTML = '<div class="empty"><strong>No location selected</strong>Select a parking lot to inspect its spaces.</div>'; return; }
+      byId('selectedLotName').textContent = lot.name; byId('selectedLotLocation').textContent = `${lot.location} · ${lot.totalSlots} total spaces`;
+      try { const [slots, occupancy] = await Promise.all([api(`/api/parking-lots/${lot.id}/slots`), api(`/api/parking-lots/${lot.id}/occupancy`)]); state.slots = slots; const percent = Math.min(100, Math.max(0, Number(occupancy.occupancyPercentage) || 0)); byId('occupancyLabel').textContent = `${percent.toFixed(0)}%`; byId('occupancyFill').style.width = `${percent}%`; renderSlots(); }
+      catch (error) { byId('slotGrid').innerHTML = `<div class="empty">${esc(error.message)}</div>`; }
+    }
+    function renderSlots() { byId('slotCountLabel').textContent = `${state.slots.length} ${state.slots.length === 1 ? 'space' : 'spaces'}`; if (!state.slots.length) { byId('slotGrid').innerHTML = '<div class="empty"><strong>No spaces configured</strong>Use “Add slot” to configure this lot.</div>'; return; } byId('slotGrid').innerHTML = state.slots.map(slot => { const status = state.availableSlotIds && !state.availableSlotIds.has(slot.id) ? 'booked' : (slot.status || 'AVAILABLE').toLowerCase(); const label = status === 'occupied' ? 'Occupied' : status === 'booked' ? 'Booked in range' : 'Available'; return `<article class="slot"><div class="slot-top"><span class="slot-name">${esc(slot.slotNumber)}</span><span class="slot-car" aria-hidden="true">⌑</span></div><span class="status ${status}">${label}</span></article>`; }).join(''); }
+    function renderBookings() {
+      const lotSlotIds = new Set(state.slots.map(slot => slot.id)); const bookings = state.selectedLotId ? state.bookings.filter(item => lotSlotIds.has(item.slot?.id)) : state.bookings;
+      byId('bookingCountLabel').textContent = `${bookings.length} ${bookings.length === 1 ? 'booking' : 'bookings'}`;
+      if (!bookings.length) { byId('bookingRows').innerHTML = '<tr><td colspan="6" class="empty">No bookings for this location yet.</td></tr>'; return; }
+      byId('bookingRows').innerHTML = bookings.slice().sort((a,b) => b.id-a.id).map(item => { const status = (item.status || 'BOOKED').toLowerCase(); const actions = item.status === 'BOOKED' ? `<button class="button small" data-action="checkin" data-booking-id="${item.id}">Check in</button>` : item.status === 'CHECKED_IN' ? `<button class="button small primary" data-action="checkout" data-booking-id="${item.id}">Check out</button>` : '—'; return `<tr><td><strong>#${item.id}</strong></td><td>${esc(item.customerName)}<br><span class="panel-meta">${esc(item.vehicleNumber)}</span></td><td>${esc(item.slot?.slotNumber || '—')}</td><td>${formatDate(item.startTime)}<br><span class="panel-meta">to ${formatDate(item.endTime)}</span></td><td><span class="status ${status}">${esc(item.status)}</span></td><td><div class="row-actions">${actions}</div></td></tr>`; }).join('');
+      document.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', async () => { try { const id = Number(button.dataset.bookingId); const result = await api(`/api/${button.dataset.action === 'checkin' ? 'check-in' : 'check-out'}/${id}`, { method: 'POST' }); notify(result.message || 'Booking updated.'); await refresh(); } catch (error) { notify(error.message, true); } }));
+    }
+    function openDialog(title, fields, submitLabel, action) { state.dialogAction = action; byId('dialogTitle').textContent = title; byId('submitDialog').textContent = submitLabel; byId('dialogFields').innerHTML = fields; byId('actionDialog').showModal(); }
+    function closeDialog() { byId('actionDialog').close(); }
+    byId('newLotButton').addEventListener('click', () => openDialog('Create parking lot', '<div class="field"><label for="lotName">LOT NAME</label><input id="lotName" name="name" required maxlength="100" placeholder="North Garage"></div><div class="field"><label for="lotLocation">LOCATION</label><input id="lotLocation" name="location" required maxlength="140" placeholder="Street or area"></div><div class="field"><label for="lotCapacity">TOTAL SPACES</label><input id="lotCapacity" name="totalSlots" type="number" min="1" step="1" required value="20"></div>', 'Create lot', 'lot'));
+    byId('newSlotButton').addEventListener('click', () => { if (!state.selectedLotId) return notify('Select or create a parking lot first.', true); openDialog('Add parking space', `<div class="field"><label>LOT</label><input value="${esc(state.lots.find(lot => lot.id === state.selectedLotId)?.name || '')}" disabled></div><div class="field"><label for="slotNumber">SPACE NUMBER</label><input id="slotNumber" name="slotNumber" required maxlength="40" placeholder="A-01"></div>`, 'Add space', 'slot'); });
+    byId('newBookingButton').addEventListener('click', () => { if (!state.selectedLotId) return notify('Select or create a parking lot first.', true); if (!state.slots.length) return notify('Add a parking space before booking.', true); const options = state.slots.map(slot => `<option value="${slot.id}">${esc(slot.slotNumber)} · ${esc(slot.status)}</option>`).join(''); openDialog('Create booking', `<div class="field"><label for="customerName">CUSTOMER NAME</label><input id="customerName" name="customerName" required maxlength="100"></div><div class="field"><label for="vehicleNumber">VEHICLE NUMBER</label><input id="vehicleNumber" name="vehicleNumber" required maxlength="30"></div><div class="field"><label for="bookingSlot">SPACE</label><select id="bookingSlot" name="slotId" required>${options}</select></div><div class="field"><label for="bookingStart">START TIME</label><input id="bookingStart" name="startTime" type="datetime-local" required value="${esc(byId('availableStart').value)}"></div><div class="field"><label for="bookingEnd">END TIME</label><input id="bookingEnd" name="endTime" type="datetime-local" required value="${esc(byId('availableEnd').value)}"></div>`, 'Create booking', 'booking'); });
+    byId('actionForm').addEventListener('submit', async event => { event.preventDefault(); const form = new FormData(event.currentTarget), value = key => form.get(key), timestamp = value => value ? `${value}:00` : null; try { if (state.dialogAction === 'lot') { await api('/api/parking-lots', { method:'POST', body:JSON.stringify({name:value('name'),location:value('location'),totalSlots:Number(value('totalSlots'))}) }); notify('Parking lot created.'); } else if (state.dialogAction === 'slot') { await api(`/api/slots?parkingLotId=${state.selectedLotId}`, {method:'POST',body:JSON.stringify({slotNumber:value('slotNumber'),status:'AVAILABLE'})}); notify('Parking space added.'); } else if (state.dialogAction === 'booking') { await api('/api/bookings',{method:'POST',body:JSON.stringify({customerName:value('customerName'),vehicleNumber:value('vehicleNumber'),slotId:Number(value('slotId')),startTime:timestamp('startTime'),endTime:timestamp('endTime')})}); notify('Booking created.'); } closeDialog(); await refresh(); } catch(error) { notify(error.message,true); } });
+    byId('cancelDialog').addEventListener('click', closeDialog); byId('closeDialog').addEventListener('click', closeDialog); byId('refreshButton').addEventListener('click', refresh); byId('navBookings').addEventListener('click', () => byId('bookingsSection').scrollIntoView({behavior:'smooth',block:'center'})); byId('navLots').addEventListener('click', () => byId('lotsPanel').scrollIntoView({behavior:'smooth',block:'center'}));
+    byId('availabilityButton').addEventListener('click', async () => { if (!state.selectedLotId) return notify('Select a parking lot first.',true); const start=byId('availableStart').value,end=byId('availableEnd').value; if(!start||!end)return notify('Choose both ends of the time window.',true); try { const slots=await api(`/api/parking-lots/${state.selectedLotId}/available-slots?startTime=${encodeURIComponent(start+':00')}&endTime=${encodeURIComponent(end+':00')}`); state.availableSlotIds=new Set(slots.map(slot=>slot.id)); renderSlots(); notify(`${slots.length} available ${slots.length===1?'space':'spaces'} in this time window.`); } catch(error) { notify(error.message,true); } });
+    byId('todayLabel').textContent = new Date().toLocaleDateString([], {weekday:'long',month:'long',day:'numeric'}); setDefaultTimes(); refresh();
+  </script>
+</body>
+</html>
