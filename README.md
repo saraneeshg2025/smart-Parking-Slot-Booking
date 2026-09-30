@@ -21,34 +21,21 @@ ParkSmart is a smart parking slot booking backend built with Java 17, Spring Boo
 - MySQL
 - Jakarta Validation
 
-## Run locally
-The default profile uses an in-memory H2 database, so the API starts without a MySQL installation or credentials:
-```bash
-mvn spring-boot:run
-```
-
-Open `http://localhost:8080/api/parking-lots` to check the API. H2 data is temporary and is cleared when the application stops.
-
-## Use MySQL
+## MySQL Setup
 1. Install MySQL and start the MySQL service.
 2. Create the database manually if needed:
    ```sql
   CREATE DATABASE grain_storage_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
-3. Set `MYSQL_PASSWORD` in the same terminal session, then activate the `mysql` profile when starting the application. Do not put the password in project files or commit it.
+3. Set environment variables before running the app:
+   ```bash
+   set MYSQL_PASSWORD=your_mysql_password
+   ```
+  Set `MYSQL_PASSWORD` in the same terminal session where you start the app. Do not put the password in `application.properties` or commit it.
 
-PowerShell:
-```powershell
-$securePassword = Read-Host 'MySQL root password' -AsSecureString
-$passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
-$env:SPRING_PROFILES_ACTIVE = 'mysql'
-try {
-  $env:MYSQL_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
-  mvn spring-boot:run
-} finally {
-  [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
-  Remove-Item Env:MYSQL_PASSWORD -ErrorAction SilentlyContinue
-}
+## Run the project
+```bash
+./mvnw spring-boot:run
 ```
 
 ## API Examples
